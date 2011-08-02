@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>how's it hanging?</title>
+    <meta charset="utf-8">
+    <style>
+      body, html {
+        padding: 0;
+        margin: 0;
+        height: 100%;
+        overflow: hidden;
+        background: #000;
+      }
+      img {
+        border: 0;
+        padding: 0;
+        margin: 0;
+        display: block;
+        float: left;
+      }
+      legend {
+        border: 2px solid rgba(255,255,255,.2);
+        border-radius: 1em;
+        color: #fff;
+        padding: 1em 2em;
+        background: rgba(0,0,0,.8);
+        font-weight: bold;
+        position: absolute;
+        top: 0;
+        right: 0;
+        bottom: 0;
+        left: 0;
+        margin: auto;
+        width: 200px;
+        height: 150px;
+        display: none;
+        font: bold 12px sans-serif;
+      }
+      legend p:first-letter {
+        color: #ff8;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="graphpane">
+    </div>
+    <legend>
+      <p>h : show help menu</p>
+      <p>r : reload graphs</p>
+      <p>l : toggle graph legends</p>
+    </legend>
+    <script src="jquery.min.js"></script>
+    <script src="underscore.js"></script>
+    <script src="backbone-min.js"></script>
+    <script src="backbone-localstorage.js"></script>
+    <script>
+      $(function() {
+        var srcBase = 'https://graphite-sjc.mozilla.org/render/?',
+            globalOpts = {
+              hideLegend: false
+            };
+
+        window.Graph = Backbone.Model.extend({
+          defaults: {
+            'target': ['sumSeries(stats.amo.response.*)'],
+            'from': '-1hour'
+          },
+          initialize: function() {
+            if (!this.get('title')) {
+              this.set({title: this.get('target')[0]});
+            }
+          },
+          addTarget: function(t) {
+            var tgts = this.get('target').push(t);
+            this.save({targets: tgts});
+          },
+          toUrl: function() {
+            var ret =  _.reduce(this.get('target'), function(s, t){ return s + 'target=' + t + '&' }, '');
+            ret += 'from=' + this.get('from');
+            ret += '&title=' + this.get('title');
+            return ret;
+          }
+        });
+
+
+        window.GraphList = Backbone.Collection.extend({
+          model: Graph,
+          localStorage: new Store('graphs'),
+        });
+        window.Graphs = new GraphList;
+
+
+        window.GraphView = Backbone.View.extend({
+          tagName:  'img',
+          // events: {
+          //   'dblclick' : 'edit',
+          // },
+          initialize: function() {
+            this.model.bind('change', this.render, this);
+            this.model.view = this;
+          },
+          render: function() {
+            var w = ~~($("body").width()/2);
+            var h = ~~($("body").height()/2);
+            var computedSrc = srcBase + this.model.toUrl() + '&width=' + w + '&height=' + h + '&t=' + Math.random();
+            for (opt in globalOpts) {
+              computedSrc += '&' + opt + '=' + globalOpts[opt];
+            }
+            $(this.el).attr('src', decodeURIComponent(computedSrc));
+            return this;
+          }
+        });
+
+
+        window.AppView = Backbone.View.extend({
+            el: $("#graphpane"),
+
+            initialize: function() {
+              Graphs.bind('add',   this.addOne, this);
+              Graphs.bind('reset', this.addAll, this);
+              Graphs.bind('all',   this.render, this);
+              Graphs.bind('add', console.log, this);
+              Graphs.fetch();
+              if (!Graphs.length) {
+                setupDefaultGraphs();
+              }
+            },
+
+            addOne: function(graph) {
+              var view = new GraphView({model: graph});
+              $("#graphpane").append(view.render().el);
+            },
+
+            addAll: function() {
+              Graphs.each(this.addOne);
+            },
+
+            render: function() {
+              Graphs.each(function(g) {
+                g.view.render();
+              });
+            }
+        });
+
+        function setupDefaultGraphs() {
+          Graphs.create({
+            target: ['sumSeries(stats.amo.response.*)'],
+            title: 'all responses, last hour'
+          });
+          Graphs.create({
+            target: ['stats.timers.amo.view.addons.views.home.GET.lower',
+                     'stats.timers.amo.view.addons.views.home.GET.mean',
+                     'stats.timers.amo.view.addons.views.home.GET.upper_90'
+                    ],
+            title: 'homepage performance, last hour'
+          });
+          Graphs.create({
+            target: ['stats.amo.response.500',
+                     'stats.amo.response.4*'
+                    ],
+            title: 'errors, last hour'
+          });
+          Graphs.create({
+            target: ['sumSeries(amo.celery.tasks.pending.*.*.*)',
+                     'derivative(sumSeries(amo.celery.tasks.total.*.*.*))',
+                     'derivative(sumSeries(amo.celery.tasks.failed.*.*.*))'
+                    ],
+            title: 'celery queues, last hour'
+          });
+        }
+
+        window.App = new AppView;
+        $(window).keydown(function(e) {
+          switch (e.which) {
+            case 76:
+              globalOpts.hideLegend = !globalOpts.hideLegend;
+            case 82:
+              App.render();
+              break;
+            case 72:
+              $('legend').toggle();
+              e.preventDefault();
+              break;
+            case 221:
+              // range = (range + 1) % ranges.length;
+              App.render();
+              break;
+          }
+        });
+        setInterval(App.render, 15000);
+
+        var to = false;
+        $(window).resize(function() {
+          clearTimeout(to);
+          to = setTimeout(App.render, 1000);
+        });
+      });
+    </script>
+  </body>
+</html>
