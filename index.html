@@ -39,6 +39,62 @@
       legend p:first-letter {
         color: #ff8;
       }
+      section {
+        display: block;
+        position: relative;
+        float: left;
+        width: 50%;
+        height: 50%;
+      }
+      section img {
+        -moz-transition: -moz-transform .25s ease-out .25s;
+      }
+      section form {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: #ccc;
+        -moz-transition: -moz-transform .25s ease-in;
+        -moz-transform: scaleY(0);
+      }
+      section fieldset {
+        margin: 1em;
+        border: 0;
+      }
+      section.edit img {
+        -moz-transition: -moz-transform .25s ease-in;
+        -moz-transform: scaleY(0);
+      }
+      section.edit form {
+        -moz-transition: -moz-transform .25s ease-out .25s;
+        -moz-transform: scaleY(1);
+      }
+      section input,
+      section textarea {
+        float: right;
+        width: 90%;
+        margin-left: 8px;
+      }
+      section textarea {
+        height: 20%;
+      }
+      section div {
+        text-align: right;
+        margin-bottom: 1em;
+      }
+      section div:last-child {
+        padding-left: 10%;
+        text-align: left;
+      }
+      section div:after {
+        content: ' ';
+        display: inline-block;
+        height: 0;
+        width: 0;
+        clear: both;
+      }
     </style>
   </head>
   <body>
@@ -49,6 +105,19 @@
       <p>r : reload graphs</p>
       <p>l : toggle graph legends</p>
     </legend>
+
+    <script type="text/template" id="graph-template">
+      <img class="graph">
+      <form>
+        <fieldset>
+          <div><label>Title: <input class="title" value="<%= title %>"></label></div>
+          <div><label>Range: <input class="range" value="<%= from %>"></label></div>
+          <div><label>Data:  <textarea class="target"><%= target.join(', ') %></textarea></label></div>
+          <div><button>done</button></div>
+        </fieldset>
+      </form>
+    </script>
+
     <script src="jquery.min.js"></script>
     <script src="underscore.js"></script>
     <script src="backbone-min.js"></script>
@@ -91,26 +160,50 @@
 
 
         window.GraphView = Backbone.View.extend({
-          tagName:  'img',
-          // events: {
-          //   'dblclick' : 'edit',
-          // },
+          tagName:  'section',
+          template: _.template($('#graph-template').html()),
           initialize: function() {
-            this.model.bind('change', this.render, this);
+            this.model.bind('change', this.updateImage, this);
             this.model.view = this;
           },
           render: function() {
+            $(this.el).html(this.template(this.model.toJSON()));
+            this.updateImage();
+            return this;
+          },
+          events: {
+            "dblclick img"  : "edit",
+            "click button"  : "doneEdit",
+            "keydown"       : "catchKeys"
+          },
+          updateImage: function() {
             var w = ~~($("body").width()/2);
             var h = ~~($("body").height()/2);
             var computedSrc = srcBase + this.model.toUrl() + '&width=' + w + '&height=' + h + '&t=' + Math.random();
             for (opt in globalOpts) {
               computedSrc += '&' + opt + '=' + globalOpts[opt];
             }
-            $(this.el).attr('src', decodeURIComponent(computedSrc));
-            return this;
+            $(this.el).find('img').attr('src', decodeURIComponent(computedSrc));
+          },
+          edit: function() {
+            $(this.el).addClass("edit");
+          },
+          // Close the `"editing"` mode, saving changes to the todo.
+          doneEdit: function(e) {
+            e.preventDefault();
+            $el = $(this.el);
+            this.model.save({
+              title: $el.find('.title').val(),
+              from: $el.find('.range').val(),
+              target: $el.find('.target').val().split(/\s*,\s*/)
+            });
+            $(this.el).removeClass("edit");
+          },
+          catchKeys: function(e) {
+            if ($(this.el).hasClass('edit'))
+              e.stopPropagation();
           }
         });
-
 
         window.AppView = Backbone.View.extend({
             el: $("#graphpane"),
@@ -137,7 +230,7 @@
 
             render: function() {
               Graphs.each(function(g) {
-                g.view.render();
+                g.view.updateImage();
               });
             }
         });
@@ -188,7 +281,6 @@
           }
         });
         setInterval(App.render, 15000);
-
         var to = false;
         $(window).resize(function() {
           clearTimeout(to);
