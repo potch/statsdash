@@ -112,7 +112,7 @@
         <fieldset>
           <div><label>Title: <input class="title" value="<%= title %>"></label></div>
           <div><label>Range: <input class="range" value="<%= from %>"></label></div>
-          <div><label>Data:  <textarea class="target"><%= target.join(', ') %></textarea></label></div>
+          <div><label>Data:  <textarea class="target"><%= target.join(' | ') %></textarea></label></div>
           <div><button>done</button></div>
         </fieldset>
       </form>
@@ -183,7 +183,10 @@
             for (opt in globalOpts) {
               computedSrc += '&' + opt + '=' + globalOpts[opt];
             }
-            $(this.el).find('img').attr('src', decodeURIComponent(computedSrc));
+            $(this.el).find('img').css({
+              width: w+'px',
+              height: h+'px'
+            }).attr('src', decodeURIComponent(computedSrc));
           },
           edit: function() {
             $(this.el).addClass("edit");
@@ -195,7 +198,7 @@
             this.model.save({
               title: $el.find('.title').val(),
               from: $el.find('.range').val(),
-              target: $el.find('.target').val().split(/\s*,\s*/)
+              target: $el.find('.target').val().split(/\s*\|\s*/)
             });
             $(this.el).removeClass("edit");
           },
