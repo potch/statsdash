@@ -33,8 +33,13 @@
         margin: auto;
         width: 200px;
         height: 150px;
-        display: none;
         font: bold 12px sans-serif;
+        pointer-events: none;
+        opacity: 0;
+        -moz-transition: .3s opacity;
+      }
+      legend.show {
+        opacity: 1;
       }
       legend p:first-letter {
         color: #ff8;
@@ -274,7 +279,7 @@
               App.render();
               break;
             case 72:
-              $('legend').toggle();
+              $('legend').toggleClass("show");
               e.preventDefault();
               break;
             case 221:
