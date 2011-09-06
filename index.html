@@ -129,14 +129,14 @@
     <script src="backbone-localstorage.js"></script>
     <script>
       $(function() {
-        var srcBase = 'https://graphite-sjc.mozilla.org/render/?',
+        var srcBase = 'https://graphite-phx.mozilla.org/render/?',
             globalOpts = {
               hideLegend: false
             };
 
         window.Graph = Backbone.Model.extend({
           defaults: {
-            'target': ['sumSeries(stats.amo.response.*)'],
+            'target': ['sumSeries(stats.addons.response.*)'],
             'from': '-1hour'
           },
           initialize: function() {
@@ -245,26 +245,26 @@
 
         function setupDefaultGraphs() {
           Graphs.create({
-            target: ['sumSeries(stats.amo.response.*)'],
+            target: ['sumSeries(stats.addons.response.*)'],
             title: 'all responses, last hour'
           });
           Graphs.create({
-            target: ['stats.timers.amo.view.addons.views.home.GET.lower',
-                     'stats.timers.amo.view.addons.views.home.GET.mean',
-                     'stats.timers.amo.view.addons.views.home.GET.upper_90'
+            target: ['stats.timers.addons.view.addons.views.home.GET.lower',
+                     'stats.timers.addons.view.addons.views.home.GET.mean',
+                     'stats.timers.addons.view.addons.views.home.GET.upper_90'
                     ],
             title: 'homepage performance, last hour'
           });
           Graphs.create({
-            target: ['stats.amo.response.500',
-                     'stats.amo.response.4*'
+            target: ['stats.addons.response.500',
+                     'stats.addons.response.4*'
                     ],
             title: 'errors, last hour'
           });
           Graphs.create({
-            target: ['sumSeries(amo.celery.tasks.pending.*.*.*)',
-                     'derivative(sumSeries(amo.celery.tasks.total.*.*.*))',
-                     'derivative(sumSeries(amo.celery.tasks.failed.*.*.*))'
+            target: ['sumSeries(addons.celery.tasks.pending.*.*.*)',
+                     'derivative(sumSeries(addons.celery.tasks.total.*.*.*))',
+                     'derivative(sumSeries(addons.celery.tasks.failed.*.*.*))'
                     ],
             title: 'celery queues, last hour'
           });
