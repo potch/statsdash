@@ -117,7 +117,7 @@ $(function() {
       this.model.fetch();
       if (!this.model.length) {
         _.each(cfg.defaultGraphs, function(g) {
-          this.model.create(g);
+          self.model.create(g);
         });
       }
 
