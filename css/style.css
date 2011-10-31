@@ -5,6 +5,7 @@ body, html {
   overflow: hidden;
   background: #000;
 }
+
 img {
   border: 0;
   padding: 0;
@@ -12,6 +13,7 @@ img {
   display: block;
   float: left;
 }
+
 legend {
   border: 2px solid rgba(255,255,255,.2);
   border-radius: 1em;
@@ -32,11 +34,28 @@ legend {
   opacity: 0;
   -moz-transition: .3s opacity;
 }
+
 legend.show {
   opacity: 1;
 }
+
 legend p:first-letter {
   color: #ff8;
+}
+
+.topbar {
+  border-bottom: solid 1px #333;
+}
+
+.container {
+  padding: 0 15px;
+  width: auto;
+}
+
+/* Graphs
+ * ---------------- */
+#graph-app {
+  margin: 40px 0 0;
 }
 section {
   display: block;
@@ -45,52 +64,52 @@ section {
   width: 50%;
   height: 50%;
 }
+
 section img {
   -moz-transition: -moz-transform .25s ease-out .25s;
 }
+
 section form {
+  background: #f0f0f0;
+  height: 100%;
+  left: 0;
   position: absolute;
   top: 0;
-  left: 0;
   width: 100%;
-  height: 100%;
-  background: #ccc;
   -moz-transition: -moz-transform .25s ease-in;
   -moz-transform: scaleY(0);
 }
-section fieldset {
-  margin: 1em;
-  border: 0;
-}
+
 section.edit img {
   -moz-transition: -moz-transform .25s ease-in;
   -moz-transform: scaleY(0);
 }
+
 section.edit form {
   -moz-transition: -moz-transform .25s ease-out .25s;
   -moz-transform: scaleY(1);
 }
+
 section input,
 section textarea {
-  float: right;
-  width: 90%;
-  margin-left: 8px;
+  margin: 0 0 0 8px;
+  width: 70%;
 }
+
 section textarea {
-  height: 20%;
+  height: 90px;
 }
+
+section label {
+  width: 20%;
+}
+
 section div {
-  text-align: right;
-  margin-bottom: 1em;
+  margin: 0 0 3px;
 }
+
 section div:last-child {
-  padding-left: 10%;
-  text-align: left;
+  padding: 0 7% 0 0;
+  text-align: right;
 }
-section div:after {
-  content: ' ';
-  display: inline-block;
-  height: 0;
-  width: 0;
-  clear: both;
-}
+

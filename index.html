@@ -3,9 +3,31 @@
 <head>
   <title>how's it hanging?</title>
   <meta charset="utf-8" />
+  <link rel="stylesheet" type="text/css" href="css/bootstrap.css" />
   <link rel="stylesheet" type="text/css" href="css/style.css" />
 </head>
 <body>
+
+  <!-- Topbar
+  ================================================== -->
+  <div class="topbar" >
+    <div class="topbar-inner">
+      <div class="container">
+        <a class="brand" href="#">statsdash</a>
+        <form class="pull-right">
+          <select id="from-select">
+            <option>-1hour</option>
+            <option>-24hour</option>
+            <option>-7day</option>
+            <option>-30day</option>
+          </select>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- Graphs
+  ================================================== -->
   <div id="graph-app"></div>
   <legend>
     <p>h : show help menu</p>
@@ -17,9 +39,9 @@
     <img class="graph">
     <form>
       <fieldset>
-        <div><label>Title: <input class="title" value="<%= title %>"></label></div>
-        <div><label>Data:  <textarea class="target"><%= target.join(' | ') %></textarea></label></div>
-        <div><button>done</button></div>
+        <div><label>Title: </label><input class="title" value="<%= title %>"></div>
+        <div><label>Data:  </label><textarea class="target"><%= target.join(' | ') %></textarea></div>
+        <div><button class="btn primary">done</button></div>
       </fieldset>
     </form>
   </script>
@@ -30,5 +52,6 @@
   <script src="js/libs/backbone-localstorage.js"></script>
   <script src="js/app.config.js"></script>
   <script src="js/app.js"></script>
+
 </body>
 </html>

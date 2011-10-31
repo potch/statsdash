@@ -2,6 +2,7 @@ $(function() {
 
   "use strict";
 
+  // TODO: Config model
   var cfg = window.AppConfig;
 
   /* 
@@ -27,9 +28,6 @@ $(function() {
     localStorage: new Store('graphs')
   });
 
-  // Create our global collection of Graphs.
-  window.Graphs = new GraphList;
-
   /* 
    * Graph View
    * The DOM representaion of a Graph...
@@ -54,7 +52,7 @@ $(function() {
     updateImage: function() {
       var dimensions = {
         width: ~~($('body').width() / 2),
-        height: ~~($('body').height() / 2),
+        height: ~~($('body').height() / 2 - 20),
         t: Math.random()
       };
       var computedSrc = cfg.srcBase + this.model.toUrl() +
@@ -86,30 +84,55 @@ $(function() {
   });
 
   /*
+   * Time Selector View
+   */
+  window.TimeView = Backbone.View.extend({
+    el: $('#from-select'),
+    initialize: function() {
+      var view = this;
+      cfg.globalGraphOptions.from = this.el.val();
+      this.el.change(function() {
+        cfg.globalGraphOptions.from = this.value;
+        view.trigger('change');
+      });
+    }
+  });
+
+  /*
    * The Application
    */
   window.AppView = Backbone.View.extend({
     el: $("#graph-app"),
     initialize: function() {
-      Graphs.bind('add', this.addOne, this);
-      Graphs.bind('reset', this.addAll, this);
-      Graphs.bind('all', this.render, this);
-      Graphs.fetch();
-      if (!Graphs.length) {
+      var self = this;
+
+      // Time selector
+      this.timeView = new TimeView();
+      this.timeView.bind('change', this.render, this);
+
+      // The graphs
+      this.model.bind('add', this.addOne, this);
+      this.model.bind('reset', this.addAll, this);
+      this.model.bind('all', this.render, this);
+      this.model.fetch();
+      if (!this.model.length) {
         _.each(cfg.defaultGraphs, function(g) {
-          Graphs.create(g);
+          this.model.create(g);
         });
       }
 
+      function render() {
+        self.render.apply(self);
+      }
+
       // Repaint every 15 seconds
-      setInterval(this.render, 15000);
+      setInterval(render, 15000);
 
       // Repaint on window resize
-      var timer = false,
-          self = this;
+      var timer = false;
       $(window).resize(function() {
         clearTimeout(timer);
-        timer = setTimeout(self.render, 1000);
+        timer = setTimeout(render, 1000);
       });
 
       // Handle window keydown events
@@ -135,16 +158,18 @@ $(function() {
       this.el.append(view.render().el);
     },
     addAll: function() {
-      Graphs.each(this.addOne, this);
+      this.model.each(this.addOne, this);
     },
     render: function() {
-      Graphs.each(function(g) {
+      this.model.each(function(g) {
         g.view.updateImage();
       });
     }
   });
 
   // Fire up the app.
-  window.App = new AppView;
+  window.App = new AppView({
+    model: new GraphList()
+  })
 
 });
