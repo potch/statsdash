@@ -5,6 +5,8 @@ $(function() {
   // TODO: Config model
   var cfg = window.AppConfig;
 
+  var SITE_ID = 'AMO';
+
   /* 
    * Graph Model
    */
@@ -45,7 +47,7 @@ $(function() {
       return this;
     },
     events: {
-      'dblclick img': 'edit',
+      'click img': 'edit',
       'click button': 'doneEdit',
       'keydown': 'catchKeys'
     },
@@ -99,6 +101,22 @@ $(function() {
   });
 
   /*
+   * Legend toggle
+   */
+
+   window.LegendToggle = Backbone.View.extend({
+       el: $('#show_legend'),
+       initialize: function() {
+           var view = this;
+           cfg.globalGraphOptions.hideLegend = !this.el.is(':checked');
+           this.el.change(function() {
+               cfg.globalGraphOptions.hideLegend = !view.el.is(':checked');
+               view.trigger('change');
+           });
+       }
+   });
+
+  /*
    * The Application
    */
   window.AppView = Backbone.View.extend({
@@ -110,13 +128,17 @@ $(function() {
       this.timeView = new TimeView();
       this.timeView.bind('change', this.render, this);
 
+      // Legend Toggle
+      this.legendToggle = new LegendToggle();
+      this.legendToggle.bind('change', this.render, this);
+
       // The graphs
       this.model.bind('add', this.addOne, this);
       this.model.bind('reset', this.addAll, this);
       this.model.bind('all', this.render, this);
       this.model.fetch();
       if (!this.model.length) {
-        _.each(cfg.defaultGraphs, function(g) {
+        _.each(cfg.defaultGraphs[SITE_ID], function(g) {
           self.model.create(g);
         });
       }
@@ -135,11 +157,16 @@ $(function() {
         timer = setTimeout(render, 1000);
       });
 
+      $('#refresh').click(function(e) {
+          e.preventDefault();
+          App.render();
+      });
+
       // Handle window keydown events
       $(window).keydown(function(e) {
         switch (e.which) {
           case 76: // l
-            cfg.globalOptions.hideLegend = !cfg.globalOptions.hideLegend;
+            cfg.globalGraphOptions.hideLegend = !cfg.globalGraphOptions.hideLegend;
           case 82: // r
             App.render();
             break;

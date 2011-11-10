@@ -47,6 +47,13 @@ legend p:first-letter {
   border-bottom: solid 1px #333;
 }
 
+.topbar form > * {
+    margin: 0 1em;
+}
+.topbar label {
+    color: rgba(255,255,255,0.75);
+}
+
 .container {
   padding: 0 15px;
   width: auto;
