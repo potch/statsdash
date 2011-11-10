@@ -1,0 +1,115 @@
+body, html {
+  padding: 0;
+  margin: 0;
+  height: 100%;
+  overflow: hidden;
+  background: #000;
+}
+
+img {
+  border: 0;
+  padding: 0;
+  margin: 0;
+  display: block;
+  float: left;
+}
+
+legend {
+  border: 2px solid rgba(255,255,255,.2);
+  border-radius: 1em;
+  color: #fff;
+  padding: 1em 2em;
+  background: rgba(0,0,0,.8);
+  font-weight: bold;
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  margin: auto;
+  width: 200px;
+  height: 150px;
+  font: bold 12px sans-serif;
+  pointer-events: none;
+  opacity: 0;
+  -moz-transition: .3s opacity;
+}
+
+legend.show {
+  opacity: 1;
+}
+
+legend p:first-letter {
+  color: #ff8;
+}
+
+.topbar {
+  border-bottom: solid 1px #333;
+}
+
+.container {
+  padding: 0 15px;
+  width: auto;
+}
+
+/* Graphs
+ * ---------------- */
+#graph-app {
+  margin: 40px 0 0;
+}
+section {
+  display: block;
+  position: relative;
+  float: left;
+  width: 50%;
+  height: 50%;
+}
+
+section img {
+  -moz-transition: -moz-transform .25s ease-out .25s;
+}
+
+section form {
+  background: #f0f0f0;
+  height: 100%;
+  left: 0;
+  position: absolute;
+  top: 0;
+  width: 100%;
+  -moz-transition: -moz-transform .25s ease-in;
+  -moz-transform: scaleY(0);
+}
+
+section.edit img {
+  -moz-transition: -moz-transform .25s ease-in;
+  -moz-transform: scaleY(0);
+}
+
+section.edit form {
+  -moz-transition: -moz-transform .25s ease-out .25s;
+  -moz-transform: scaleY(1);
+}
+
+section input,
+section textarea {
+  margin: 0 0 0 8px;
+  width: 70%;
+}
+
+section textarea {
+  height: 90px;
+}
+
+section label {
+  width: 20%;
+}
+
+section div {
+  margin: 0 0 3px;
+}
+
+section div:last-child {
+  padding: 0 7% 0 0;
+  text-align: right;
+}
+
