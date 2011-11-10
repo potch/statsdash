@@ -1,300 +1,57 @@
 <!DOCTYPE html>
 <html>
-  <head>
-    <title>how's it hanging?</title>
-    <meta charset="utf-8">
-    <style>
-      body, html {
-        padding: 0;
-        margin: 0;
-        height: 100%;
-        overflow: hidden;
-        background: #000;
-      }
-      img {
-        border: 0;
-        padding: 0;
-        margin: 0;
-        display: block;
-        float: left;
-      }
-      legend {
-        border: 2px solid rgba(255,255,255,.2);
-        border-radius: 1em;
-        color: #fff;
-        padding: 1em 2em;
-        background: rgba(0,0,0,.8);
-        font-weight: bold;
-        position: absolute;
-        top: 0;
-        right: 0;
-        bottom: 0;
-        left: 0;
-        margin: auto;
-        width: 200px;
-        height: 150px;
-        font: bold 12px sans-serif;
-        pointer-events: none;
-        opacity: 0;
-        -moz-transition: .3s opacity;
-      }
-      legend.show {
-        opacity: 1;
-      }
-      legend p:first-letter {
-        color: #ff8;
-      }
-      section {
-        display: block;
-        position: relative;
-        float: left;
-        width: 50%;
-        height: 50%;
-      }
-      section img {
-        -moz-transition: -moz-transform .25s ease-out .25s;
-      }
-      section form {
-        position: absolute;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        background: #ccc;
-        -moz-transition: -moz-transform .25s ease-in;
-        -moz-transform: scaleY(0);
-      }
-      section fieldset {
-        margin: 1em;
-        border: 0;
-      }
-      section.edit img {
-        -moz-transition: -moz-transform .25s ease-in;
-        -moz-transform: scaleY(0);
-      }
-      section.edit form {
-        -moz-transition: -moz-transform .25s ease-out .25s;
-        -moz-transform: scaleY(1);
-      }
-      section input,
-      section textarea {
-        float: right;
-        width: 90%;
-        margin-left: 8px;
-      }
-      section textarea {
-        height: 20%;
-      }
-      section div {
-        text-align: right;
-        margin-bottom: 1em;
-      }
-      section div:last-child {
-        padding-left: 10%;
-        text-align: left;
-      }
-      section div:after {
-        content: ' ';
-        display: inline-block;
-        height: 0;
-        width: 0;
-        clear: both;
-      }
-    </style>
-  </head>
-  <body>
-    <div id="graphpane">
+<head>
+  <title>how's it hanging?</title>
+  <meta charset="utf-8" />
+  <link rel="stylesheet" type="text/css" href="css/bootstrap.css" />
+  <link rel="stylesheet" type="text/css" href="css/style.css" />
+</head>
+<body>
+
+  <!-- Topbar
+  ================================================== -->
+  <div class="topbar" >
+    <div class="topbar-inner">
+      <div class="container">
+        <a class="brand" href="#">statsdash</a>
+        <form class="pull-right">
+          <select id="from-select">
+            <option>-1hour</option>
+            <option>-24hour</option>
+            <option>-7day</option>
+            <option>-30day</option>
+          </select>
+        </form>
+      </div>
     </div>
-    <legend>
-      <p>h : show help menu</p>
-      <p>r : reload graphs</p>
-      <p>l : toggle graph legends</p>
-    </legend>
+  </div>
 
-    <script type="text/template" id="graph-template">
-      <img class="graph">
-      <form>
-        <fieldset>
-          <div><label>Title: <input class="title" value="<%= title %>"></label></div>
-          <div><label>Range: <input class="range" value="<%= from %>"></label></div>
-          <div><label>Data:  <textarea class="target"><%= target.join(' | ') %></textarea></label></div>
-          <div><button>done</button></div>
-        </fieldset>
-      </form>
-    </script>
+  <!-- Graphs
+  ================================================== -->
+  <div id="graph-app"></div>
+  <legend>
+    <p>h : show help menu</p>
+    <p>r : reload graphs</p>
+    <p>l : toggle graph legends</p>
+  </legend>
 
-    <script src="jquery.min.js"></script>
-    <script src="underscore.js"></script>
-    <script src="backbone-min.js"></script>
-    <script src="backbone-localstorage.js"></script>
-    <script>
-      $(function() {
-        var srcBase = 'https://graphite-phx.mozilla.org/render/?',
-            globalOpts = {
-              hideLegend: false
-            };
+  <script type="text/template" id="graph-template">
+    <img class="graph">
+    <form>
+      <fieldset>
+        <div><label>Title: </label><input class="title" value="<%= title %>"></div>
+        <div><label>Data:  </label><textarea class="target"><%= target.join(' | ') %></textarea></div>
+        <div><button class="btn primary">done</button></div>
+      </fieldset>
+    </form>
+  </script>
 
-        window.Graph = Backbone.Model.extend({
-          defaults: {
-            'target': ['sumSeries(stats.addons.response.*)'],
-            'from': '-1hour'
-          },
-          initialize: function() {
-            if (!this.get('title')) {
-              this.set({title: this.get('target')[0]});
-            }
-          },
-          addTarget: function(t) {
-            var tgts = this.get('target').push(t);
-            this.save({targets: tgts});
-          },
-          toUrl: function() {
-            var ret =  _.reduce(this.get('target'), function(s, t){ return s + 'target=' + t + '&' }, '');
-            ret += 'from=' + this.get('from');
-            ret += '&title=' + this.get('title');
-            return ret;
-          }
-        });
+  <script src="js/libs/jquery.min.js"></script>
+  <script src="js/libs/underscore.js"></script>
+  <script src="js/libs/backbone-min.js"></script>
+  <script src="js/libs/backbone-localstorage.js"></script>
+  <script src="js/app.config.js"></script>
+  <script src="js/app.js"></script>
 
-
-        window.GraphList = Backbone.Collection.extend({
-          model: Graph,
-          localStorage: new Store('graphs'),
-        });
-        window.Graphs = new GraphList;
-
-
-        window.GraphView = Backbone.View.extend({
-          tagName:  'section',
-          template: _.template($('#graph-template').html()),
-          initialize: function() {
-            this.model.bind('change', this.updateImage, this);
-            this.model.view = this;
-          },
-          render: function() {
-            $(this.el).html(this.template(this.model.toJSON()));
-            this.updateImage();
-            return this;
-          },
-          events: {
-            "dblclick img"  : "edit",
-            "click button"  : "doneEdit",
-            "keydown"       : "catchKeys"
-          },
-          updateImage: function() {
-            var w = ~~($("body").width()/2);
-            var h = ~~($("body").height()/2);
-            var computedSrc = srcBase + this.model.toUrl() + '&width=' + w + '&height=' + h + '&t=' + Math.random();
-            for (opt in globalOpts) {
-              computedSrc += '&' + opt + '=' + globalOpts[opt];
-            }
-            $(this.el).find('img').css({
-              width: w+'px',
-              height: h+'px'
-            }).attr('src', decodeURIComponent(computedSrc));
-          },
-          edit: function() {
-            $(this.el).addClass("edit");
-          },
-          // Close the `"editing"` mode, saving changes to the todo.
-          doneEdit: function(e) {
-            e.preventDefault();
-            $el = $(this.el);
-            this.model.save({
-              title: $el.find('.title').val(),
-              from: $el.find('.range').val(),
-              target: $el.find('.target').val().split(/\s*\|\s*/)
-            });
-            $(this.el).removeClass("edit");
-          },
-          catchKeys: function(e) {
-            if ($(this.el).hasClass('edit'))
-              e.stopPropagation();
-          }
-        });
-
-        window.AppView = Backbone.View.extend({
-            el: $("#graphpane"),
-
-            initialize: function() {
-              Graphs.bind('add',   this.addOne, this);
-              Graphs.bind('reset', this.addAll, this);
-              Graphs.bind('all',   this.render, this);
-              Graphs.bind('add', console.log, this);
-              Graphs.fetch();
-              if (!Graphs.length) {
-                setupDefaultGraphs();
-              }
-            },
-
-            addOne: function(graph) {
-              var view = new GraphView({model: graph});
-              $("#graphpane").append(view.render().el);
-            },
-
-            addAll: function() {
-              Graphs.each(this.addOne);
-            },
-
-            render: function() {
-              Graphs.each(function(g) {
-                g.view.updateImage();
-              });
-            }
-        });
-
-        function setupDefaultGraphs() {
-          Graphs.create({
-            target: ['sumSeries(stats.addons.response.*)'],
-            title: 'all responses, last hour'
-          });
-          Graphs.create({
-            target: ['stats.timers.addons.view.addons.views.home.GET.lower',
-                     'stats.timers.addons.view.addons.views.home.GET.mean',
-                     'stats.timers.addons.view.addons.views.home.GET.upper_90'
-                    ],
-            title: 'homepage performance, last hour'
-          });
-          Graphs.create({
-            target: ['stats.addons.response.500',
-                     'stats.addons.response.4*'
-                    ],
-            title: 'errors, last hour'
-          });
-          Graphs.create({
-            target: ['sumSeries(addons.celery.tasks.pending.*.*.*)',
-                     'derivative(sumSeries(addons.celery.tasks.total.*.*.*))',
-                     'derivative(sumSeries(addons.celery.tasks.failed.*.*.*))'
-                    ],
-            title: 'celery queues, last hour'
-          });
-        }
-
-        window.App = new AppView;
-        $(window).keydown(function(e) {
-          switch (e.which) {
-            case 76:
-              globalOpts.hideLegend = !globalOpts.hideLegend;
-            case 82:
-              App.render();
-              break;
-            case 72:
-              $('legend').toggleClass("show");
-              e.preventDefault();
-              break;
-            case 221:
-              // range = (range + 1) % ranges.length;
-              App.render();
-              break;
-          }
-        });
-        setInterval(App.render, 15000);
-        var to = false;
-        $(window).resize(function() {
-          clearTimeout(to);
-          to = setTimeout(App.render, 1000);
-        });
-      });
-    </script>
-  </body>
+</body>
 </html>
