@@ -54,7 +54,6 @@ $(function() {
     },
     updateImage: function() {
       var [w, h] = find_best_size(TILES, $('body').width(), $('body').height() - 40);
-      console.log(w, h);
       var dimensions = {
         width: w,
         height: h,
@@ -218,15 +217,15 @@ $(function() {
   }
 
   function find_best_size(n, width, height) {
-    console.log('find... ', width, height);
     var f = factor(n),
-        size = [0, height + width];
+        size = [0, width + height],
+        ASPECT = 7/3;  // Target aspect ratio.
 
     for (var i = 0; i < f.length; i++) {
       var [x, y] = f[i];
-      var w = width / y,
-          h = height / x; // Assuming wide rectangles for now.
-      if (Math.abs(w - h) < Math.abs(size[0] - size[1])) {
+      var w = width / x,
+          h = height / y;
+      if (Math.abs(w / h - ASPECT) < Math.abs(size[0] / size[1] - ASPECT)) {
         size[0] = ~~w, size[1] = ~~h;
       }
     }
