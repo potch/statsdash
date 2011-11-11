@@ -232,7 +232,7 @@ $(function() {
         size[0] = ~~w, size[1] = ~~h;
         current = Math.abs(w / h - ASPECT);
       }
-      if (Math.abs(hn / wn - ASPECT) < current) {
+      if (Math.abs(wn / hn - ASPECT) < current) {
         size[0] = ~~wn, size[1] = ~~hn;
       }
     }
