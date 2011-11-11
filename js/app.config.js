@@ -34,6 +34,14 @@ $(function() {
           title: 'all responses'
         },
         {
+          target: ['sumSeries(stats.addons.response.*)'],
+          title: 'all responses1'
+        },
+        {
+          target: ['sumSeries(stats.addons.response.*)'],
+          title: 'all responses2'
+        },
+        {
           target: ['stats.timers.addons.view.addons.views.home.GET.lower',
                    'stats.timers.addons.view.addons.views.home.GET.mean',
                    'stats.timers.addons.view.addons.views.home.GET.upper_90'],

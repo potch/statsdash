@@ -218,15 +218,22 @@ $(function() {
 
   function find_best_size(n, width, height) {
     var f = factor(n),
-        size = [0, width + height],
-        ASPECT = 7/3;  // Target aspect ratio.
+        size = [Infinity, 1],
+        ASPECT = 21/9;  // Target aspect ratio.
 
     for (var i = 0; i < f.length; i++) {
       var [x, y] = f[i];
       var w = width / x,
-          h = height / y;
-      if (Math.abs(w / h - ASPECT) < Math.abs(size[0] / size[1] - ASPECT)) {
+          h = height / y,
+          wn = width / y,
+          hn = height / x,
+          current = Math.abs(size[0] / size[1] - ASPECT);
+      if (Math.abs(w / h - ASPECT) < current) {
         size[0] = ~~w, size[1] = ~~h;
+        current = Math.abs(w / h - ASPECT);
+      }
+      if (Math.abs(hn / wn - ASPECT) < current) {
+        size[0] = ~~wn, size[1] = ~~hn;
       }
     }
     return size;
