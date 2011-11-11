@@ -53,7 +53,7 @@ $(function() {
       'keydown': 'catchKeys'
     },
     updateImage: function() {
-      var [w, h] = find_best_size(TILES, $('body').width(), $('body').height() - 20);
+      var [w, h] = find_best_size(TILES, $('body').width(), $('body').height() - 40);
       console.log(w, h);
       var dimensions = {
         width: w,
