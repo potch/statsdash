@@ -5,9 +5,10 @@ $(function() {
   // TODO: Config model
   var cfg = window.AppConfig;
 
-  var SITE_ID = 'AMO';
+  var SITE_ID = 'AMO',
+      TILES = cfg.defaultGraphs[SITE_ID].length;
 
-  /* 
+  /*
    * Graph Model
    */
   window.Graph = Backbone.Model.extend({
@@ -22,7 +23,7 @@ $(function() {
     }
   });
 
-  /* 
+  /*
    * Graph Collection
    */
   window.GraphList = Backbone.Collection.extend({
@@ -30,7 +31,7 @@ $(function() {
     localStorage: new Store('graphs')
   });
 
-  /* 
+  /*
    * Graph View
    * The DOM representaion of a Graph...
    */
@@ -52,15 +53,16 @@ $(function() {
       'keydown': 'catchKeys'
     },
     updateImage: function() {
+      var dim = find_best_size(TILES, $('body').width(), $('body').height() - 40);
       var dimensions = {
-        width: ~~($('body').width() / 2),
-        height: ~~($('body').height() / 2 - 20),
+        width: dim[0],
+        height: dim[1],
         t: Math.random()
       };
       var computedSrc = cfg.srcBase + this.model.toUrl() +
                         '&' + $.param(dimensions, true) +
                         '&' + $.param(cfg.globalGraphOptions, true);
-
+      $(this.el).width(dimensions.width).height(dimensions.height);
       $(this.el).find('img').css({
         width: dimensions.width + 'px',
         height: dimensions.height + 'px'
@@ -198,5 +200,42 @@ $(function() {
   window.App = new AppView({
     model: new GraphList()
   })
+
+  // Helper methods.
+  function factor(n) {
+    var fact = [[1, n]],
+      check = 2,
+      root = Math.sqrt(n);
+    while (check <= root) {
+      if (n % check == 0) {
+        fact.push([check, n / check]);
+      }
+      check++;
+    }
+    return fact;
+  }
+
+  function find_best_size(n, width, height) {
+    var f = factor(n),
+        size = [Infinity, 1],
+        ASPECT = 21/9;  // Target aspect ratio.
+
+    for (var i = 0; i < f.length; i++) {
+      var fact = f[i];
+      var w = width / fact[0],
+          h = height / fact[1],
+          wn = width / fact[1],
+          hn = height / fact[0],
+          current = Math.abs(size[0] / size[1] - ASPECT);
+      if (Math.abs(w / h - ASPECT) < current) {
+        size[0] = ~~w, size[1] = ~~h;
+        current = Math.abs(w / h - ASPECT);
+      }
+      if (Math.abs(wn / hn - ASPECT) < current) {
+        size[0] = ~~wn, size[1] = ~~hn;
+      }
+    }
+    return size;
+  }
 
 });
