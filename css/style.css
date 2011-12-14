@@ -74,6 +74,7 @@ section {
 
 section img {
   -moz-transition: -moz-transform .25s ease-out .25s;
+  -webkit-transition: -webkit-transform .25s ease-out .25s;
 }
 
 section form {
@@ -85,16 +86,22 @@ section form {
   width: 100%;
   -moz-transition: -moz-transform .25s ease-in;
   -moz-transform: scaleY(0);
+  -webkit-transition: -webkit-transform .25s ease-in;
+  -webkit-transform: scaleY(0);
 }
 
 section.edit img {
   -moz-transition: -moz-transform .25s ease-in;
   -moz-transform: scaleY(0);
+  -webkit-transition: -webkit-transform .25s ease-in;
+  -webkit-transform: scaleY(0);
 }
 
 section.edit form {
   -moz-transition: -moz-transform .25s ease-out .25s;
   -moz-transform: scaleY(1);
+  -webkit-transition: -webkit-transform .25s ease-out .25s;
+  -webkit-transform: scaleY(1);
 }
 
 section input,
