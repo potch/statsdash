@@ -28,7 +28,7 @@ $(function() {
           title: 'support forum activity'
         }
       ],
-      'AMO': [
+      'default': [
         {
           target: ['sumSeries(stats.addons.response.*)'],
           title: 'all responses'

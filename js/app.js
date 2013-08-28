@@ -5,8 +5,13 @@ $(function() {
   // TODO: Config model
   var cfg = window.AppConfig;
 
-  var SITE_ID = 'AMO',
-      TILES = cfg.defaultGraphs[SITE_ID].length;
+  var SITE_ID;
+  if (window.location.hash && !!cfg.defaultGraphs[window.location.hash]) {
+    SITE_ID = window.location.hash;
+  } else {
+    SITE_ID = 'default';
+  }
+  var TILES = cfg.defaultGraphs[SITE_ID].length;
 
   /*
    * Graph Model
