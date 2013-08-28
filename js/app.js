@@ -19,7 +19,15 @@ $(function() {
       }
     },
     toUrl: function() {
-      return $.param(this.attributes, true);
+      var attrs = {
+        'title': this.attributes['title'],
+        'target': this.attributes['target']
+      };
+      if (!!this.attributes['stacked'])
+        attrs['areaMode'] = 'stacked';
+      if (!!this.attributes['alpha'])
+        attrs['areaAlpha'] = this.attributes['alpha'];
+      return $.param(attrs, true);
     }
   });
 
@@ -28,7 +36,7 @@ $(function() {
    */
   window.GraphList = Backbone.Collection.extend({
     model: Graph,
-    localStorage: new Store('graphs')
+    localStorage: new Store('graphs:' + SITE_ID)
   });
 
   /*

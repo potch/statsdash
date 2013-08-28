@@ -56,6 +56,8 @@ $(function() {
           target: ['sumSeries(addons.celery.tasks.pending.*.*.*)',
                    'derivative(sumSeries(addons.celery.tasks.total.*.*.*))',
                    'derivative(sumSeries(addons.celery.tasks.failed.*.*.*))'],
+          stacked: true,
+          alpha: 0.7,
           title: 'celery queues'
         }
       ]
