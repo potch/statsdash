@@ -5,9 +5,10 @@ $(function() {
   // TODO: Config model
   var cfg = window.AppConfig;
 
-  var SITE_ID;
-  if (window.location.hash && !!cfg.defaultGraphs[window.location.hash]) {
-    SITE_ID = window.location.hash;
+  var SITE_ID,
+      fragment = window.location.hash.substring(1);
+  if (fragment && !!cfg.defaultGraphs[fragment]) {
+    SITE_ID = fragment;
   } else {
     SITE_ID = 'default';
   }
