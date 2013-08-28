@@ -1,1 +1,22 @@
 this does something off-the-shelf, but need much TLC still.
+
+    cp js/app.config.js.example js/app.config.js
+    $EDITOR js/app.config.js
+
+Each graph in the default graphs list has two required and two optional
+keys.
+
+Required:
+
+- `target` - an array of stats to draw
+
+- `title` - a title for the graph
+
+Optional:
+
+- `stacked` - a boolean display a stacked graph (e.g. for server stats
+  like memory use) instead of a line graph
+
+- `alpha` - when used with stack, set to a float between 0.0 and 1.0 to
+  control the alpha channel of the graph area (e.g. 0.7 lets you see the
+  lines behind the graph)

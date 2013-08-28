@@ -5,9 +5,16 @@ $(function() {
   // TODO: Config model
   var cfg = window.AppConfig;
 
-  var SITE_ID = 'AMO';
+  var SITE_ID,
+      fragment = window.location.hash.substring(1);
+  if (fragment && !!cfg.defaultGraphs[fragment]) {
+    SITE_ID = fragment;
+  } else {
+    SITE_ID = 'default';
+  }
+  var TILES = cfg.defaultGraphs[SITE_ID].length;
 
-  /* 
+  /*
    * Graph Model
    */
   window.Graph = Backbone.Model.extend({
@@ -18,19 +25,27 @@ $(function() {
       }
     },
     toUrl: function() {
-      return $.param(this.attributes, true);
+      var attrs = {
+        'title': this.attributes['title'],
+        'target': this.attributes['target']
+      };
+      if (!!this.attributes['stacked'])
+        attrs['areaMode'] = 'stacked';
+      if (!!this.attributes['alpha'])
+        attrs['areaAlpha'] = this.attributes['alpha'];
+      return $.param(attrs, true);
     }
   });
 
-  /* 
+  /*
    * Graph Collection
    */
   window.GraphList = Backbone.Collection.extend({
     model: Graph,
-    localStorage: new Store('graphs')
+    localStorage: new Store('graphs:' + SITE_ID)
   });
 
-  /* 
+  /*
    * Graph View
    * The DOM representaion of a Graph...
    */
@@ -52,15 +67,16 @@ $(function() {
       'keydown': 'catchKeys'
     },
     updateImage: function() {
+      var dim = find_best_size(TILES, $('body').width(), $('body').height() - 40);
       var dimensions = {
-        width: ~~($('body').width() / 2),
-        height: ~~($('body').height() / 2 - 20),
+        width: dim[0],
+        height: dim[1],
         t: Math.random()
       };
       var computedSrc = cfg.srcBase + this.model.toUrl() +
                         '&' + $.param(dimensions, true) +
                         '&' + $.param(cfg.globalGraphOptions, true);
-
+      $(this.el).width(dimensions.width).height(dimensions.height);
       $(this.el).find('img').css({
         width: dimensions.width + 'px',
         height: dimensions.height + 'px'
@@ -199,4 +215,52 @@ $(function() {
     model: new GraphList()
   })
 
+  // Helper methods.
+  function factor(n) {
+    var fact = [[1, n]],
+      check = 2,
+      root = Math.sqrt(n);
+    while (check <= root) {
+      if (n % check == 0) {
+        fact.push([check, n / check]);
+      }
+      check++;
+    }
+    return fact;
+  }
+
+  function find_closest(arr, width, height, aspect) {
+    var size = [Infinity, 1];
+    for (var i = 0; i < arr.length; i++) {
+      var fact = arr[i];
+      var w = width / fact[0],
+          h = height / fact[1],
+          wn = width / fact[1],
+          hn = height / fact[0],
+          current = Math.abs(size[0] / size[1] - aspect);
+      if (Math.abs(w / h - aspect) < current) {
+        size[0] = ~~w, size[1] = ~~h;
+        current = Math.abs(w / h - aspect);
+      }
+      if (Math.abs(wn / hn - aspect) < current) {
+        size[0] = ~~wn, size[1] = ~~hn;
+      }
+    }
+    return size;
+  }
+
+  function find_best_size(n, width, height) {
+    var f = factor(n),
+        ASPECT = 21/9,  // Target aspect ratio.
+        size = find_closest(f, width, height, ASPECT);
+    if (f.length == 1 && n > 2) {  // A prime number!
+      var g = factor(n + 1),  // Not prime.
+          gsize = find_closest(g, width, height, ASPECT);
+      if (Math.abs(gsize[0] / gsize[1] - ASPECT) <
+          Math.abs(size[0] / size[1] - ASPECT)) {
+        size = gsize;
+      }
+    }
+    return size;
+  }
 });
