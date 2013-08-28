@@ -223,27 +223,38 @@ $(function() {
     return fact;
   }
 
-  function find_best_size(n, width, height) {
-    var f = factor(n),
-        size = [Infinity, 1],
-        ASPECT = 21/9;  // Target aspect ratio.
-
-    for (var i = 0; i < f.length; i++) {
-      var fact = f[i];
+  function find_closest(arr, width, height, aspect) {
+    var size = [Infinity, 1];
+    for (var i = 0; i < arr.length; i++) {
+      var fact = arr[i];
       var w = width / fact[0],
           h = height / fact[1],
           wn = width / fact[1],
           hn = height / fact[0],
-          current = Math.abs(size[0] / size[1] - ASPECT);
-      if (Math.abs(w / h - ASPECT) < current) {
+          current = Math.abs(size[0] / size[1] - aspect);
+      if (Math.abs(w / h - aspect) < current) {
         size[0] = ~~w, size[1] = ~~h;
-        current = Math.abs(w / h - ASPECT);
+        current = Math.abs(w / h - aspect);
       }
-      if (Math.abs(wn / hn - ASPECT) < current) {
+      if (Math.abs(wn / hn - aspect) < current) {
         size[0] = ~~wn, size[1] = ~~hn;
       }
     }
     return size;
   }
 
+  function find_best_size(n, width, height) {
+    var f = factor(n),
+        ASPECT = 21/9,  // Target aspect ratio.
+        size = find_closest(f, width, height, ASPECT);
+    if (f.length == 1 && n > 2) {  // A prime number!
+      var g = factor(n + 1),  // Not prime.
+          gsize = find_closest(g, width, height, ASPECT);
+      if (Math.abs(gsize[0] / gsize[1] - ASPECT) <
+          Math.abs(size[0] / size[1] - ASPECT)) {
+        size = gsize;
+      }
+    }
+    return size;
+  }
 });
