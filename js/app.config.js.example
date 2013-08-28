@@ -28,10 +28,18 @@ $(function() {
           title: 'support forum activity'
         }
       ],
-      'AMO': [
+      'default': [
         {
           target: ['sumSeries(stats.addons.response.*)'],
           title: 'all responses'
+        },
+        {
+          target: ['sumSeries(stats.addons.response.*)'],
+          title: 'all responses1'
+        },
+        {
+          target: ['sumSeries(stats.addons.response.*)'],
+          title: 'all responses2'
         },
         {
           target: ['stats.timers.addons.view.addons.views.home.GET.lower',
@@ -48,6 +56,8 @@ $(function() {
           target: ['sumSeries(addons.celery.tasks.pending.*.*.*)',
                    'derivative(sumSeries(addons.celery.tasks.total.*.*.*))',
                    'derivative(sumSeries(addons.celery.tasks.failed.*.*.*))'],
+          stacked: true,
+          alpha: 0.7,
           title: 'celery queues'
         }
       ]
